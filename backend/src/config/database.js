@@ -2,13 +2,18 @@ const mysql = require("mysql2/promise");
 const { getDatabaseName } = require("./databaseName");
 
 const databaseName = getDatabaseName();
+const dbHost = process.env.DB_HOST || "localhost";
+const isLocalDatabaseHost = ["localhost", "127.0.0.1", "::1"].includes(dbHost);
+const shouldAutoCreateDatabase =
+  process.env.DB_AUTO_CREATE?.trim() === "true" ||
+  (!process.env.DB_AUTO_CREATE && isLocalDatabaseHost);
 
 /**
  * Main pool used by the app after the database exists.
  * mysql2 creates the pool immediately, but it only connects when we run a query.
  */
 const pool = mysql.createPool({
-  host: process.env.DB_HOST || "localhost",
+  host: dbHost,
   port: Number(process.env.DB_PORT || 3306),
   user: process.env.DB_USER || "root",
   password: process.env.DB_PASSWORD || "",
@@ -24,14 +29,17 @@ const pool = mysql.createPool({
  */
 const initializeDatabase = async () => {
   const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || "localhost",
+    host: dbHost,
     port: Number(process.env.DB_PORT || 3306),
     user: process.env.DB_USER || "root",
     password: process.env.DB_PASSWORD || "",
   });
 
   try {
-    await connection.query(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\``);
+    if (shouldAutoCreateDatabase) {
+      await connection.query(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\``);
+    }
+
     await connection.query(`USE \`${databaseName}\``);
 
     await connection.query(`

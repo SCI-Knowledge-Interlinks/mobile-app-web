@@ -3,28 +3,22 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "npm run dev",
-    "start:clear": "npm run dev:clear",
-    "start:ios": "npm run dev:ios",
-    "start:android": "npm run dev:android",
-    "start:web": "npm run dev:web",
-    "client": "npm --prefix frontend start",
-    "client:clear": "npm --prefix frontend run start:clear",
-    "client:ios": "npm --prefix frontend run ios",
-    "client:ios:clear": "npm --prefix frontend run ios:clear",
-    "client:android": "npm --prefix frontend run android",
-    "client:android:clear": "npm --prefix frontend run android:clear",
-    "client:web": "npm --prefix frontend run web",
-    "client:web:clear": "npm --prefix frontend run web:clear",
-    "server": "npm --prefix backend run dev",
-    "dev": "concurrently --handle-input --default-input-target 1 -n backend,frontend -c blue,green \"npm run server\" \"npm run client\"",
-    "dev:clear": "concurrently --handle-input --default-input-target 1 -n backend,frontend -c blue,green \"npm run server\" \"npm run client:clear\"",
-    "dev:ios": "concurrently -n backend,ios -c blue,green \"npm run server\" \"npm run client:ios\"",
-    "dev:ios:clear": "concurrently -n backend,ios -c blue,green \"npm run server\" \"npm run client:ios:clear\"",
-    "dev:android": "concurrently -n backend,android -c blue,green \"npm run server\" \"npm run client:android\"",
-    "dev:android:clear": "concurrently -n backend,android -c blue,green \"npm run server\" \"npm run client:android:clear\"",
-    "dev:web": "concurrently -n backend,web -c blue,green \"npm run server\" \"npm run client:web\"",
-    "dev:web:clear": "concurrently -n backend,web -c blue,green \"npm run server\" \"npm run client:web:clear\""
+    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend start",
+
+    "android": "npm --prefix frontend run android",
+    "ios": "npm --prefix frontend run ios",
+    "web": "npm --prefix frontend run web",
+
+    "backend:start": "npm --prefix backend start",
+
+    "start:android": "concurrently \"npm run backend\" \"npm run android\"",
+    "start:ios": "concurrently \"npm run backend\" \"npm run ios\"",
+    "start:web": "concurrently \"npm run backend\" \"npm run web\"",
+
+    "build:web": "npm --prefix frontend run build:web"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
