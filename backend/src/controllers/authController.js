@@ -670,10 +670,10 @@ const sendEmailOtp = async (req, res) => {
     });
 
     /* Commented to test dummy email- for app testing  */
-    // await sendOtpEmail({
-    //   toEmail: normalizedEmail,
-    //   otp,
-    // });
+    await sendOtpEmail({
+      toEmail: normalizedEmail,
+      otp,
+    });
 
     return res.status(200).json({
       success: true,

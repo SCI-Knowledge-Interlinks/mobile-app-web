@@ -116,16 +116,16 @@ const sendWhatsAppOtp = async (req, res) => {
 
      /* Commented to test dummy mobile No.- for app testing  */
     
-    // await sendInteraktTemplateMessage({
-    //   countryCode: cleanCountryCode,
-    //   phoneNumber: cleanPhone,
-    //   callbackData: process.env.INTERAKT_CALLBACK_DATA || "otp_test",
-    //   templateName: process.env.INTERAKT_OTP_TEMPLATE_NAME || "prawaas_logic_otp",
-    //   bodyValues: [otp],
-    //   buttonValues: {
-    //     "0": [otp],
-    //   },
-    // });
+    await sendInteraktTemplateMessage({
+      countryCode: cleanCountryCode,
+      phoneNumber: cleanPhone,
+      callbackData: process.env.INTERAKT_CALLBACK_DATA || "otp_test",
+      templateName: process.env.INTERAKT_OTP_TEMPLATE_NAME || "prawaas_logic_otp",
+      bodyValues: [otp],
+      buttonValues: {
+        "0": [otp],
+      },
+    });
 
     return res.json({
       success: true,
