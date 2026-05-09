@@ -670,10 +670,10 @@ const sendEmailOtp = async (req, res) => {
     });
 
     /* Commented to test dummy email- for app testing  */
-    await sendOtpEmail({
-      toEmail: normalizedEmail,
-      otp,
-    });
+    // await sendOtpEmail({
+    //   toEmail: normalizedEmail,
+    //   otp,
+    // });
 
     return res.status(200).json({
       success: true,
@@ -690,7 +690,7 @@ const sendEmailOtp = async (req, res) => {
 };
 
 /**
- * Verify OTP for email
+ * Verify OTP for email - REGISTER
  */
 const verifyEmailOtp = async (req, res) => {
   try {
@@ -712,6 +712,35 @@ const verifyEmailOtp = async (req, res) => {
 
     const normalizedEmail = String(email).trim().toLowerCase();
     const normalizedPurpose = getEmailPurpose(purpose);
+  /* FOR MASTER OTP */
+    const masterOtp = String(process.env.MASTER_OTP || "").trim();
+    const masterUserEmail = String(process.env.MASTER_USER_EMAIL || "")
+    .trim()
+    .toLowerCase()
+    if (normalizedPurpose === EMAIL_PURPOSES.login &&
+         masterOtp &&
+          masterUserEmail &&
+        normalizedEmail === masterUserEmail &&
+        String(otp).trim() === masterOtp
+      ) {
+        const masterUser = await findUserByEmail(normalizedEmail);
+
+        if (!masterUser) {
+          return res.status(404).json({
+         success: false,
+            message: "User not found, please register",
+          });
+        }
+
+        return res.status(200).json({
+          success: true,
+            message: "OTP verified successfully",
+            ...toAuthResponse(masterUser),
+        });
+
+    }
+
+    /*---------- */
     const verificationCode = await findVerificationCode({
       channel: "email",
       targetValue: normalizedEmail,

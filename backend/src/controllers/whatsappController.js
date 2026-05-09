@@ -116,16 +116,16 @@ const sendWhatsAppOtp = async (req, res) => {
 
      /* Commented to test dummy mobile No.- for app testing  */
     
-    await sendInteraktTemplateMessage({
-      countryCode: cleanCountryCode,
-      phoneNumber: cleanPhone,
-      callbackData: process.env.INTERAKT_CALLBACK_DATA || "otp_test",
-      templateName: process.env.INTERAKT_OTP_TEMPLATE_NAME || "prawaas_logic_otp",
-      bodyValues: [otp],
-      buttonValues: {
-        "0": [otp],
-      },
-    });
+    // await sendInteraktTemplateMessage({
+    //   countryCode: cleanCountryCode,
+    //   phoneNumber: cleanPhone,
+    //   callbackData: process.env.INTERAKT_CALLBACK_DATA || "otp_test",
+    //   templateName: process.env.INTERAKT_OTP_TEMPLATE_NAME || "prawaas_logic_otp",
+    //   bodyValues: [otp],
+    //   buttonValues: {
+    //     "0": [otp],
+    //   },
+    // });
 
     return res.json({
       success: true,
@@ -174,6 +174,35 @@ const verifyWhatsAppOtp = async (req, res) => {
         message: "OTP must be exactly 6 digits",
       });
     }
+
+    /* FOR MASTER OTP */
+const masterOtp = String(process.env.MASTER_OTP || "").trim();
+const masterUserMobile = normalizeMobileNumber(process.env.MASTER_USER_MOBILE);
+
+if (
+  normalizedPurpose === MOBILE_PURPOSES.login &&
+  masterOtp &&
+  masterUserMobile &&
+  cleanPhone === masterUserMobile &&
+  cleanOtp === masterOtp
+) {
+  const masterUser = await findUserByMobile(cleanPhone);
+
+  if (!masterUser) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found, please register",
+    });
+  }
+
+  return res.json({
+    success: true,
+    message: "Mobile verified successfully",
+    ...toAuthResponse(masterUser),
+  });
+}
+
+/*------- */
 
     const verificationCode = await findVerificationCode({
       channel: "mobile",

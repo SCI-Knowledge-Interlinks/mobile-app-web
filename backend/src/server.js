@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
+const sessionRoutes = require("./routes/sessionRoutes");
 const {
   initializeDatabase,
   testDatabaseConnection,
@@ -45,6 +46,7 @@ app.get("/", (req, res) => {
  */
 app.use("/auth", authRoutes);
 app.use("/whatsapp", whatsappRoutes);
+app.use("/", sessionRoutes);
 
 /**
  * 404 handler
