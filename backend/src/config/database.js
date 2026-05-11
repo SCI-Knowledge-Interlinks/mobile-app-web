@@ -1,8 +1,13 @@
+const { loadEnv } = require("./loadEnv");
+loadEnv();
+
 const mysql = require("mysql2/promise");
 const { getDatabaseName } = require("./databaseName");
 
 const databaseName = getDatabaseName();
-const dbHost = process.env.DB_HOST || "localhost";
+const dbHost = (process.env.DB_HOST || "localhost").trim();
+const dbUser = (process.env.DB_USER || "root").trim();
+const dbPassword = String(process.env.DB_PASSWORD ?? "").trim();
 const isLocalDatabaseHost = ["localhost", "127.0.0.1", "::1"].includes(dbHost);
 const shouldAutoCreateDatabase =
   process.env.DB_AUTO_CREATE?.trim() === "true" ||
@@ -15,8 +20,8 @@ const shouldAutoCreateDatabase =
 const pool = mysql.createPool({
   host: dbHost,
   port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
+  user: dbUser,
+  password: dbPassword,
   database: databaseName,
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
@@ -31,8 +36,8 @@ const initializeDatabase = async () => {
   const connection = await mysql.createConnection({
     host: dbHost,
     port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
+    user: dbUser,
+    password: dbPassword,
   });
 
   try {

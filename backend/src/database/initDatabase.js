@@ -1,12 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 const mysql = require("mysql2/promise");
-const dotenv = require("dotenv");
 const { getDatabaseName } = require("../config/databaseName");
+const { loadEnv } = require("../config/loadEnv");
 
-dotenv.config({
-  path: path.resolve(__dirname, "../../.env"),
-});
+loadEnv();
 
 const initDatabase = async () => {
   const schemaPath = path.resolve(__dirname, "schema.sql");
@@ -16,10 +14,12 @@ const initDatabase = async () => {
     .replaceAll("__DB_NAME__", databaseName);
 
   const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || "localhost",
+    host: process.env.DB_HOST || "191.101.13.224",
     port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
+    user: process.env.DB_USER || "u773541120_prawaas_app",
+    password: process.env.DB_PASSWORD || "v/xxVIL5",
+    database: process.env.DB_NAME || "u773541120_prawaas_app",
+
     multipleStatements: true,
   });
 

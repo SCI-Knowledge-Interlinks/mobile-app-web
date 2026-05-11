@@ -34,7 +34,8 @@
           "photosPermission": "Allow Prawaas to choose a profile photo from your gallery.",
           "cameraPermission": "Allow Prawaas to capture a profile photo."
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }

@@ -1,6 +1,8 @@
+const { loadEnv } = require("./config/loadEnv");
+loadEnv();
+
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
@@ -10,10 +12,6 @@ const {
   testDatabaseConnection,
 } = require("./config/database");
 const { cleanupVerificationCodes } = require("./models/verificationCodeModel");
-
-dotenv.config({
-  path: path.resolve(__dirname, "../.env"),
-});
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -94,10 +92,16 @@ const startServer = async () => {
     await testDatabaseConnection();
     console.log("Database connected successfully");
   } catch (error) {
-    console.error(
-      "Database connection failed:",
-      error.code || error.sqlMessage || error.message || error
-    );
+    const detail =
+      error.sqlMessage || error.code || error.message || String(error);
+    console.error("Database connection failed:", detail);
+    if (error.code === "ER_ACCESS_DENIED_ERROR" || error.errno === 1045) {
+      console.error(
+        "MySQL rejected the user/password, or this client IP is not allowed. " +
+          "For a remote DB (e.g. shared hosting), add your public IP to “Remote MySQL” / allowed hosts, " +
+          "or use correct DB_* values from your host’s panel."
+      );
+    }
   }
 
   app.listen(PORT, () => {

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "start": "concurrently -n backend,frontend -c blue,magenta \"npm run backend\" \"npm run frontend\"",
 
     "backend": "npm --prefix backend run dev",
     "frontend": "npm --prefix frontend start",
@@ -14,9 +14,9 @@
 
     "backend:start": "npm --prefix backend start",
 
-    "start:android": "concurrently \"npm run backend\" \"npm run android\"",
-    "start:ios": "concurrently \"npm run backend\" \"npm run ios\"",
-    "start:web": "concurrently \"npm run backend\" \"npm run web\"",
+    "start:android": "concurrently -n backend,android -c blue,magenta \"npm run backend\" \"npm run android\"",
+    "start:ios": "concurrently -n backend,ios -c blue,magenta \"npm run backend\" \"npm run ios\"",
+    "start:web": "concurrently -n backend,web -c blue,magenta \"npm run backend\" \"npm run web\"",
 
     "build:web": "npm --prefix frontend run build:web"
   },
