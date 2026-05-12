@@ -1,11 +1,12 @@
 {
   "name": "prawaas-backend",
   "version": "1.0.0",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
     "db:init": "node src/database/initDatabase.js",
-    "dev": "nodemon src/server.js",
-    "start": "node src/server.js"
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "build": "npm ci --omit=dev && mkdir -p dist && touch dist/.keep"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

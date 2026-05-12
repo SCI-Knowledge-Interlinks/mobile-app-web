@@ -18,7 +18,9 @@
     "start:ios": "concurrently -n backend,ios -c blue,magenta \"npm run backend\" \"npm run ios\"",
     "start:web": "concurrently -n backend,web -c blue,magenta \"npm run backend\" \"npm run web\"",
 
-    "build:web": "npm --prefix frontend run build:web"
+    "build": "npm --prefix frontend ci && npm run build:web && npm run build:backend",
+    "build:web": "npm --prefix frontend run build:web",
+    "build:backend": "npm --prefix backend ci --omit=dev"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
