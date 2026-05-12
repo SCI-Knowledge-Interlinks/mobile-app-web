@@ -17,7 +17,6 @@ function mapSession(session) {
     initials: speaker.initials,
     about: speaker.bio,
     expertise: speaker.expertise || [],
-    sessions: speaker.sessions || [],
   }));
 
   return {

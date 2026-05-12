@@ -466,7 +466,6 @@ function getSessionsList() {
         return speaker
           ? {
               ...speaker,
-              sessions: getSpeakerSessions(speaker.id),
             }
           : null;
       })

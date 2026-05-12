@@ -1,8 +1,9 @@
 const mysql = require("mysql2/promise");
-const { getDatabaseName } = require("./databaseName");
+const { getDatabaseConfig } = require("./databaseName");
 
-const databaseName = getDatabaseName();
-const dbHost = process.env.DB_HOST || "localhost";
+const databaseConfig = getDatabaseConfig();
+const databaseName = databaseConfig.database;
+const dbHost = databaseConfig.host;
 const isLocalDatabaseHost = ["localhost", "127.0.0.1", "::1"].includes(dbHost);
 const shouldAutoCreateDatabase =
   process.env.DB_AUTO_CREATE?.trim() === "true" ||
@@ -14,9 +15,9 @@ const shouldAutoCreateDatabase =
  */
 const pool = mysql.createPool({
   host: dbHost,
-  port: Number(process.env.DB_PORT || 3306),
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "",
+  port: databaseConfig.port,
+  user: databaseConfig.user,
+  password: databaseConfig.password,
   database: databaseName,
   waitForConnections: true,
   connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
@@ -30,9 +31,9 @@ const pool = mysql.createPool({
 const initializeDatabase = async () => {
   const connection = await mysql.createConnection({
     host: dbHost,
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "",
+    port: databaseConfig.port,
+    user: databaseConfig.user,
+    password: databaseConfig.password,
   });
 
   try {

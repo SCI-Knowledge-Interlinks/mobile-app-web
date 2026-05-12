@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "86020fd4-920b-478a-8998-1200b6b1d001"
+      }
+    },
+    "android": {
+      "package": "com.prawaas"
+    }
+  }
+}

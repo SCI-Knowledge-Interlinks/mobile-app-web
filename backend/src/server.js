@@ -2,6 +2,11 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+
+dotenv.config({
+  path: path.resolve(__dirname, "../.env"),
+});
+
 const authRoutes = require("./routes/authRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
@@ -11,10 +16,6 @@ const {
 } = require("./config/database");
 const { cleanupVerificationCodes } = require("./models/verificationCodeModel");
 
-dotenv.config({
-  path: path.resolve(__dirname, "../.env"),
-});
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 const PUBLIC_API_BASE_URL =
@@ -22,12 +23,28 @@ const PUBLIC_API_BASE_URL =
 const VERIFICATION_CODE_CLEANUP_INTERVAL_MS = 15 * 60 * 1000;
 const uploadsPath = path.resolve(__dirname, "../uploads");
 
+const allowedOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 /**
  * Middleware
  * - CORS lets your frontend call this backend from web during development.
  * - express.json() reads JSON request bodies.
  */
-app.use(cors());
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow mobile apps, curl, Postman, same-origin, etc. which may not send Origin.
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+  })
+);
 app.use(express.json());
 app.use("/uploads", express.static(uploadsPath));
 
