@@ -13,6 +13,10 @@ const {
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000;
 
+/** mysql2: wrong credentials or user not allowed from this client IP (e.g. Hostinger Remote MySQL). */
+const isMysqlAccessDenied = (err) =>
+  err?.code === "ER_ACCESS_DENIED_ERROR" || err?.errno === 1045;
+
 const MOBILE_PURPOSES = {
   register: "register_mobile_verify",
   login: "login_mobile_otp",
@@ -132,6 +136,21 @@ const sendWhatsAppOtp = async (req, res) => {
       message: "WhatsApp OTP sent successfully",
     });
   } catch (error) {
+    if (isMysqlAccessDenied(error)) {
+      console.error(
+        "WhatsApp send-otp failed: MySQL access denied (not Interakt). " +
+          "If DB_PROFILE=production from your laptop, add this machine public IP under your host’s Remote MySQL / allowed hosts, " +
+          "or use DB_PROFILE=local with a local MySQL for development.",
+        error.message
+      );
+      return res.status(503).json({
+        success: false,
+        message:
+          process.env.NODE_ENV === "development"
+            ? "Database refused the connection (see server log: Remote MySQL / DB_PROFILE)."
+            : "Service temporarily unavailable.",
+      });
+    }
     console.error("WhatsApp send error:", error);
 
     return res.status(500).json({
@@ -290,6 +309,19 @@ if (
       ...(loginUser ? toAuthResponse(loginUser) : {}),
     });
   } catch (error) {
+    if (isMysqlAccessDenied(error)) {
+      console.error(
+        "WhatsApp verify-otp failed: MySQL access denied — same fix as send-otp (Remote MySQL allowlist or DB_PROFILE=local).",
+        error.message
+      );
+      return res.status(503).json({
+        success: false,
+        message:
+          process.env.NODE_ENV === "development"
+            ? "Database refused the connection (see server log)."
+            : "Service temporarily unavailable.",
+      });
+    }
     console.error("WhatsApp verify error:", error);
 
     return res.status(500).json({

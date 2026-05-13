@@ -73,6 +73,13 @@ export default function HomeRoute() {
       }
       onOpenSpeakers={() => router.push("/speakers")}
       onOpenCalendar={() => router.push("/my-calendar")}
+      onOpenExhibition={(selectedTab) =>
+        router.push({
+          pathname: "/exhibition",
+          params: selectedTab ? { selectedTab } : {},
+        })
+      }
+      onOpenHelpdesk={() => router.push("/helpdesk")}
       onOpenSpeakerInfo={(data) =>
         router.push({
           pathname: "/speaker-info",

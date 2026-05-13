@@ -6,6 +6,7 @@ const { loadEnv } = require("../config/loadEnv");
 
 loadEnv();
 
+
 const initDatabase = async () => {
   const schemaPath = path.resolve(__dirname, "schema.sql");
   const databaseName = getDatabaseName();
@@ -14,11 +15,11 @@ const initDatabase = async () => {
     .replaceAll("__DB_NAME__", databaseName);
 
   const connection = await mysql.createConnection({
-    host: process.env.DB_HOST || "191.101.13.224",
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || "u773541120_prawaas_app",
-    password: process.env.DB_PASSWORD || "v/xxVIL5",
-    database: process.env.DB_NAME || "u773541120_prawaas_app",
+    host: process.env.DB_LOCAL_HOST || process.env.DB_PROD_HOST,
+    port: Number(process.env.DB_LOCAL_PORT || process.env.DB_PROD_PORT),
+    user: process.env.DB_LOCAL_USER || process.env.DB_PROD_USER,
+    password: process.env.DB_LOCAL_PASSWORD || process.env.DB_PROD_PASSWORD,
+    database: process.env.DB_LOCAL_NAME || process.env.DB_PROD_NAME,
 
     multipleStatements: true,
   });

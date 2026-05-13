@@ -1,9 +1,13 @@
 const { loadEnv } = require("./config/loadEnv");
 loadEnv();
 
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+
+
+
 const authRoutes = require("./routes/authRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
@@ -11,6 +15,7 @@ const {
   initializeDatabase,
   testDatabaseConnection,
 } = require("./config/database");
+const { getDatabaseProfile } = require("./config/databaseName");
 const { cleanupVerificationCodes } = require("./models/verificationCodeModel");
 
 const app = express();
@@ -20,12 +25,38 @@ const PUBLIC_API_BASE_URL =
 const VERIFICATION_CODE_CLEANUP_INTERVAL_MS = 15 * 60 * 1000;
 const uploadsPath = path.resolve(__dirname, "../uploads");
 
+const allowedOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 /**
  * Middleware
  * - CORS lets your frontend call this backend from web during development.
  * - express.json() reads JSON request bodies.
  */
-app.use(cors());
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow mobile apps, curl, Postman, same-origin, etc. which may not send Origin.
+      if (!origin) {
+        return callback(null, true);
+      }
+
+      // Allow localhost for development
+      if (origin.includes("localhost") || origin.includes("127.0.0.1")) {
+        return callback(null, true);
+      }
+
+      // Allow configured origins for production
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+  })
+);
 app.use(express.json());
 app.use("/uploads", express.static(uploadsPath));
 
@@ -93,14 +124,24 @@ const startServer = async () => {
     console.log("Database connected successfully");
   } catch (error) {
     const detail =
-      error.sqlMessage || error.code || error.message || String(error);
+      error.sqlMessage || error.message || error.code || String(error);
     console.error("Database connection failed:", detail);
     if (error.code === "ER_ACCESS_DENIED_ERROR" || error.errno === 1045) {
       console.error(
-        "MySQL rejected the user/password, or this client IP is not allowed. " +
-          "For a remote DB (e.g. shared hosting), add your public IP to “Remote MySQL” / allowed hosts, " +
-          "or use correct DB_* values from your host’s panel."
+        [
+          `Active DB profile: ${getDatabaseProfile()} (set DB_PROFILE=local for local MySQL, or production for prod).`,
+          "MySQL ER_ACCESS_DENIED usually means one of:",
+          "  1) Wrong DB_PROD_USER / DB_PROD_PASSWORD / DB_PROD_NAME — copy exactly from your host panel.",
+          "  2) Remote connections blocked — in hPanel: Databases → Remote MySQL → add the IP shown after @'…' in the error (your server’s or your home’s public IP, not 192.168.x.x).",
+          "  3) Try DB_PROD_SSL=true on the server; if it still fails, DB_PROD_SSL=insecure (TLS only; use only if your host requires it).",
+        ].join("\n")
       );
+    }
+
+    if (process.env.START_WITHOUT_DB === "true") {
+      console.warn("Continuing without database (START_WITHOUT_DB=true). APIs that use MySQL will fail.");
+    } else {
+      process.exit(1);
     }
   }
 

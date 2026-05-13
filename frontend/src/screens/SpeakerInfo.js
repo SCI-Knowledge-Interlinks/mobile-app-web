@@ -76,7 +76,7 @@ export default function SpeakerInfo({ data, onBack }) {
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 120 }]}
       >
         <Header
-          title=""
+          title="Profile"
           onBack={onBack}
           contentWidth={contentWidth}
           rightContent={

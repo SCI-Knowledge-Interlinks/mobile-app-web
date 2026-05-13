@@ -85,6 +85,8 @@ export default function HomeScreen({
   onEditProfile,
   onOpenSpeakers,
   onOpenCalendar,
+  onOpenExhibition,
+  onOpenHelpdesk,
   onOpenSpeakerInfo,
   onOpenSessionDetails,
   onOpenSessionFilter,
@@ -134,6 +136,15 @@ export default function HomeScreen({
       onOpenCalendar?.();
       return;
     }
+
+    if (title === "Exhibition") {
+      onOpenExhibition?.();
+      return;
+    }
+
+    if (title === "Help Desk") {
+      onOpenHelpdesk?.();
+    }
   };
 
   if (activeTab === "sessions") {
@@ -160,7 +171,12 @@ export default function HomeScreen({
   if (activeTab === "hub") {
     return (
       <View style={styles.screen}>
-        <EventHub />
+        <EventHub
+          onOpenSpeakers={onOpenSpeakers}
+          onOpenCalendar={onOpenCalendar}
+          onOpenExhibition={onOpenExhibition}
+          onOpenHelpdesk={onOpenHelpdesk}
+        />
         <BottomTabs activeTab="hub" onTabPress={handleTabPress} />
       </View>
     );
@@ -309,7 +325,7 @@ export default function HomeScreen({
           <Card style={styles.card}>
             <View style={styles.sectionRow}>
               <SectionHeader title="SPONSORS & PARTNERS" compact />
-              <TouchableOpacity activeOpacity={0.8}>
+              <TouchableOpacity activeOpacity={0.8} onPress={() => onOpenExhibition?.("Partners")}>
                 <Text style={styles.viewAllText}>View All</Text>
               </TouchableOpacity>
             </View>

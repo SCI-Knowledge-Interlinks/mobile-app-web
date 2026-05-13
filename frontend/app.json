@@ -13,7 +13,8 @@
       "backgroundColor": "#61AE63"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pooja13.prawaas"
     },
     "android": {
       "usesCleartextTraffic": true,
@@ -21,7 +22,12 @@
         "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#61AE63"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.pooja13.prawaas"
     },
     "web": {
       "favicon": "./src/assets/favicon.png"

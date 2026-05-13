@@ -20,7 +20,7 @@ import { spacing } from "../constants/spacing";
 const youthIcon = require("../assets/youth.png");
 
 const quickItems = [
-  { label: "My Schedule", icon: "calendar-month", iconSet: "MaterialIcons" },
+  { label: "My Calendar", icon: "calendar-month", iconSet: "MaterialIcons" },
   { label: "Speakers", icon: "groups", iconSet: "MaterialIcons" },
   { label: "Exhibition", icon: "storefront", iconSet: "MaterialIcons" },
   { label: "Youth Corridor", icon: "location-outline", iconSet: "MaterialIcons" },
@@ -51,10 +51,44 @@ const moreItems = [
   { label: "Facility", icon: "business", color: colors.success, bg: colors.successLight },
 ];
 
-export default function EventHub() {
+export default function EventHub({ onOpenSpeakers, onOpenCalendar, onOpenExhibition, onOpenHelpdesk }) {
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
   const contentWidth = useMemo(() => Math.min(width - 28, 760), [width]);
+
+  const handleQuickItemPress = (title) => {
+    if (title === "Speakers") {
+      onOpenSpeakers?.();
+      return;
+    }
+
+    if (title === "My Calendar") {
+      onOpenCalendar?.();
+      return;
+    }
+
+    if (title === "Exhibition") {
+      onOpenExhibition?.();
+      return;
+    }
+  };
+
+  const handleExploreItemPress = (title) => {
+    if (title === "Partners") {
+      onOpenExhibition?.("Partners");
+      return;
+    }
+
+    if (title === "Startup") {
+      onOpenExhibition?.("Startup");
+    }
+  };
+
+  const handleMoreItemPress = (title) => {
+    if (title === "Helpdesk") {
+      onOpenHelpdesk?.();
+    }
+  };
 
   return (
     <View style={styles.screen}>
@@ -73,12 +107,16 @@ export default function EventHub() {
 
         <View style={[styles.content, { maxWidth: contentWidth }]}>
           <Card style={styles.quickCard}>
-
-             <SectionTitle title="Quick Access" />
+            <SectionTitle title="Quick Access" />
 
             <View style={styles.quickGrid}>
               {quickItems.map((item) => (
-                <TouchableOpacity key={item.label} activeOpacity={0.84} style={styles.quickItem}>
+                <TouchableOpacity
+                  key={item.label}
+                  activeOpacity={0.84}
+                  style={styles.quickItem}
+                  onPress={() => handleQuickItemPress(item.label)}
+                >
                   <View style={styles.quickIconBox}>
                     {item.label === "Youth Corridor" ? (
                       <Image
@@ -103,6 +141,7 @@ export default function EventHub() {
                 <TouchableOpacity
                   key={item.label}
                   activeOpacity={0.84}
+                  onPress={() => handleExploreItemPress(item.label)}
                   style={[styles.exploreItem, { backgroundColor: item.bg }]}
                 >
                   <Text style={styles.exploreText}>{item.label}</Text>
@@ -132,6 +171,7 @@ export default function EventHub() {
                 <TouchableOpacity
                   key={item.label}
                   activeOpacity={0.84}
+                  onPress={() => handleMoreItemPress(item.label)}
                   style={[
                     styles.infoRow,
                     index < visitorItems.length - 1 && styles.infoRowBorder,
