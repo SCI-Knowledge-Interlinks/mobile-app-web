@@ -1,27 +1,12 @@
 {
-  "name": "prawaas-project",
+  "name": "prawaas-web",
   "version": "1.0.0",
   "private": true,
+  "description": "Prawaas frontend — Expo web export for Hostinger static hosting",
   "scripts": {
-    "start": "concurrently -n backend,frontend -c blue,magenta \"npm run backend\" \"npm run frontend\"",
-    "backend": "npm --prefix backend run dev",
-    "frontend": "npm --prefix frontend start",
+    "start": "npm --prefix frontend start",
     "web": "npm --prefix frontend run web",
-    "backend:start": "npm --prefix backend start",
-    "start:web": "concurrently -n backend,web -c blue,magenta \"npm run backend\" \"npm run web\"",
-    "build": "npm --prefix frontend ci && npm run build:web && npm run build:backend",
-    "build:web": "npm --prefix frontend run build:web",
-    "build:backend": "npm --prefix backend ci --omit=dev"
-  },
-  "devDependencies": {
-    "concurrently": "^9.2.1"
-  },
-  "dependencies": {
-    "expo": "~54.0.34",
-    "expo-barcode-scanner": "^13.0.1",
-    "expo-dev-client": "~6.0.21",
-    "firebase": "^12.15.0",
-    "react": "19.1.0",
-    "react-native": "0.81.5"
+    "build": "npm --prefix frontend ci && npm run build:web",
+    "build:web": "npm --prefix frontend run build:web"
   }
 }
