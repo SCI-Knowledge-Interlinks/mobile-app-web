@@ -16,7 +16,7 @@ const token = process.env.HOSTINGER_API_TOKEN;
 const domain = process.env.HOSTINGER_DOMAIN;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const distDir = path.resolve(process.argv[2] || path.join(__dirname, "../frontend/dist"));
+const distDir = path.resolve(process.argv[2] || path.join(__dirname, "../dist"));
 
 function requireEnv(name, value) {
   if (!value?.trim()) {

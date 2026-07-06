@@ -6,7 +6,7 @@
   "scripts": {
     "start": "npm --prefix frontend start",
     "web": "npm --prefix frontend run web",
-    "build": "npm --prefix frontend ci && npm run build:web",
-    "build:web": "npm --prefix frontend run build:web"
+    "build": "npm --prefix frontend ci && npm --prefix frontend run build:web && node scripts/verify-dist.mjs",
+    "build:web": "npm --prefix frontend run build:web && node scripts/verify-dist.mjs"
   }
 }

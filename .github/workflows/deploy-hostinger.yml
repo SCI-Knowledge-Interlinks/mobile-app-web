@@ -47,8 +47,10 @@ jobs:
           EOF
 
       - name: Build static web export
-        working-directory: frontend
-        run: npm run build:web
+        run: npm run build
+
+      - name: Verify build output
+        run: node scripts/verify-dist.mjs
 
       - name: Install Hostinger deploy dependencies
         run: npm install --no-save axios tus-js-client
@@ -57,4 +59,4 @@ jobs:
         env:
           HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
           HOSTINGER_DOMAIN: ${{ secrets.HOSTINGER_DOMAIN }}
-        run: node scripts/deploy-hostinger-api.mjs frontend/dist
+        run: node scripts/deploy-hostinger-api.mjs dist
