@@ -2,6 +2,10 @@ const IS_DEV_CLIENT =
   process.env.EAS_BUILD_PROFILE !== "preview" &&
   process.env.EAS_BUILD_PROFILE !== "production";
 
+const DEFAULT_API_BASE_URL = "https://azure-cassowary-742969.hostingersite.com";
+const DEFAULT_EXHIBITOR_LIST_URL =
+  "https://prawaas.com/prawaas-2026/public/api/public/exhibitor-list";
+
 /** @type {import('expo/config').ExpoConfig} */
 module.exports = {
   expo: {
@@ -9,7 +13,6 @@ module.exports = {
     slug: "prawaas-project",
     version: "1.0.0",
     orientation: "portrait",
-    // Centered + padded for launcher safe-zone (avoids stretch/crop on Android).
     icon: "./src/assets/adaptive-icon.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
@@ -45,6 +48,14 @@ module.exports = {
     extra: {
       eas: {
         projectId: "86020fd4-920b-478a-8998-1200b6b1d001",
+      },
+      appEnv: {
+        apiBaseUrl: process.env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL,
+        eventId: process.env.EXPO_PUBLIC_EVENT_ID || "1",
+        appName: process.env.EXPO_PUBLIC_APP_NAME || "Prawaas",
+        exhibitorListUrl:
+          process.env.EXPO_PUBLIC_EXHIBITOR_LIST_URL || DEFAULT_EXHIBITOR_LIST_URL,
+        firebaseVapidKey: process.env.EXPO_PUBLIC_FIREBASE_VAPID_KEY || "",
       },
     },
     plugins: [

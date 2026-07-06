@@ -2,9 +2,20 @@ import { Platform } from "react-native";
 import Constants from "expo-constants";
 
 const DEFAULT_API_PORT = "3000";
+const DEFAULT_PRODUCTION_API_BASE_URL =
+  "https://azure-cassowary-742969.hostingersite.com";
 
 function normalizeBaseUrl(url) {
   return String(url || "").trim().replace(/\/$/, "");
+}
+
+function readAppEnv() {
+  return (
+    Constants.expoConfig?.extra?.appEnv ||
+    Constants.manifest2?.extra?.expoClient?.extra?.appEnv ||
+    Constants.manifest?.extra?.appEnv ||
+    {}
+  );
 }
 
 /** On Android emulator, localhost/127.0.0.1 must map to the host machine. */
@@ -18,9 +29,6 @@ function rewriteLocalhostForAndroid(url) {
     .replace(/\/\/127\.0\.0\.1(?=[:/]|$)/i, "//10.0.2.2");
 }
 
-/**
- * Expo dev server host (e.g. 192.168.x.x from `expo start`) — same machine as the API.
- */
 function getExpoDevHost() {
   const hostUri =
     Constants.expoConfig?.hostUri ||
@@ -35,13 +43,17 @@ function getExpoDevHost() {
   return host || null;
 }
 
+function isLocalWebHostname(hostname) {
+  return hostname === "localhost" || hostname === "127.0.0.1";
+}
+
 function getWebDevApiBaseUrl(port) {
   if (Platform.OS !== "web" || typeof globalThis?.location?.hostname !== "string") {
     return null;
   }
 
   const hostname = globalThis.location.hostname;
-  if (hostname === "localhost" || hostname === "127.0.0.1") {
+  if (isLocalWebHostname(hostname)) {
     return `http://localhost:${port}`;
   }
 
@@ -52,18 +64,26 @@ function isLocalApiUrl(url) {
   return /^https?:\/\/(localhost|127\.0\.0\.1)(?=[:/]|$)/i.test(url);
 }
 
+function getConfiguredApiBaseUrl() {
+  const appEnv = readAppEnv();
+  const fromExtra = normalizeBaseUrl(appEnv.apiBaseUrl);
+  const fromEnv = normalizeBaseUrl(process.env.EXPO_PUBLIC_API_BASE_URL);
+
+  return fromExtra || fromEnv || DEFAULT_PRODUCTION_API_BASE_URL;
+}
+
 function resolveApiBaseUrl() {
   const port = process.env.EXPO_PUBLIC_API_PORT || DEFAULT_API_PORT;
   const webDevApi = getWebDevApiBaseUrl(port);
-  const fromEnv = normalizeBaseUrl(process.env.EXPO_PUBLIC_API_BASE_URL);
+  const configuredApi = getConfiguredApiBaseUrl();
 
-  if (fromEnv) {
-    // Web dev: route API calls through the Expo dev server proxy to avoid CORS.
-    if (webDevApi && !isLocalApiUrl(fromEnv)) {
+  if (configuredApi) {
+    // Web dev only: route API calls through the Expo dev server proxy to avoid CORS.
+    if (typeof __DEV__ !== "undefined" && __DEV__ && webDevApi && !isLocalApiUrl(configuredApi)) {
       return "";
     }
 
-    return rewriteLocalhostForAndroid(fromEnv);
+    return rewriteLocalhostForAndroid(configuredApi);
   }
 
   if (webDevApi) {
@@ -72,25 +92,32 @@ function resolveApiBaseUrl() {
 
   const devHost = getExpoDevHost();
 
-  if (devHost && devHost !== "localhost" && devHost !== "127.0.0.1") {
+  if (devHost && !isLocalWebHostname(devHost)) {
     return rewriteLocalhostForAndroid(`http://${devHost}:${port}`);
   }
 
-  // Android emulator: localhost on the device is not the dev machine.
   if (Platform.OS === "android") {
     return `http://10.0.2.2:${port}`;
   }
 
-  return `http://localhost:${port}`;
+  return DEFAULT_PRODUCTION_API_BASE_URL;
 }
+
+const appEnv = readAppEnv();
 
 export const API_BASE_URL = resolveApiBaseUrl();
 
 export const APP_NAME =
-  process.env.EXPO_PUBLIC_APP_NAME || process.env.APP_NAME || "Prawaas";
+  appEnv.appName || process.env.EXPO_PUBLIC_APP_NAME || process.env.APP_NAME || "Prawaas";
 
-export const DEFAULT_EVENT_ID = Number(process.env.EXPO_PUBLIC_EVENT_ID || 1);
+export const DEFAULT_EVENT_ID = Number(
+  appEnv.eventId || process.env.EXPO_PUBLIC_EVENT_ID || 1
+);
 
 export const EXHIBITOR_LIST_API_URL =
+  appEnv.exhibitorListUrl ||
   process.env.EXPO_PUBLIC_EXHIBITOR_LIST_URL ||
   "https://prawaas.com/prawaas-2026/public/api/public/exhibitor-list";
+
+export const FIREBASE_VAPID_KEY =
+  appEnv.firebaseVapidKey || process.env.EXPO_PUBLIC_FIREBASE_VAPID_KEY || "";

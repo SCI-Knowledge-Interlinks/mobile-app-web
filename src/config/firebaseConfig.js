@@ -1,3 +1,16 @@
+import Constants from "expo-constants";
+
+function readAppEnv() {
+  return (
+    Constants.expoConfig?.extra?.appEnv ||
+    Constants.manifest2?.extra?.expoClient?.extra?.appEnv ||
+    Constants.manifest?.extra?.appEnv ||
+    {}
+  );
+}
+
+const appEnv = readAppEnv();
+
 export const firebaseConfig = {
   apiKey:
     process.env.EXPO_PUBLIC_FIREBASE_API_KEY ||
@@ -15,4 +28,5 @@ export const firebaseConfig = {
     "1:1003791871854:web:60bb88daaa908e5b1fdb7f",
 };
 
-export const firebaseVapidKey = process.env.EXPO_PUBLIC_FIREBASE_VAPID_KEY || "";
+export const firebaseVapidKey =
+  appEnv.firebaseVapidKey || process.env.EXPO_PUBLIC_FIREBASE_VAPID_KEY || "";
