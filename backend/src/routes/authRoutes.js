@@ -9,8 +9,10 @@ const {
   getSessionUser,
   saveUserProfile,
   uploadProfilePhoto,
+  registerDeviceToken,
 } = require("../controllers/authController");
 const { uploadProfileImage } = require("../middleware/profileImageUpload");
+const { requireAuth } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -62,5 +64,10 @@ router.post(
   uploadProfileImage.single("profileImage"),
   uploadProfilePhoto
 );
+
+/**
+ * Save the device's FCM push token for the logged-in user.
+ */
+router.post("/device-token", requireAuth, registerDeviceToken);
 
 module.exports = router;

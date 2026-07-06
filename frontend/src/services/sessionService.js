@@ -49,3 +49,9 @@ export async function clearAuthSession() {
 export function getAuthHeaders(token) {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
+
+export async function getSessionUserId() {
+  const session = await getAuthSession();
+  const userId = session?.user?.id;
+  return userId != null && userId !== "" ? String(userId) : null;
+}

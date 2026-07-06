@@ -32,6 +32,10 @@ export function isValidName(value = "") {
   return value.trim().length >= 2;
 }
 
+export function isValidFirstName(value = "") {
+  return value.trim().length >= 2;
+}
+
 export function isValidPincode(value = "") {
   return !value.trim() || /^\d{4,10}$/.test(value.trim());
 }

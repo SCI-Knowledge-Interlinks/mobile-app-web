@@ -8,8 +8,10 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 import { countryCodes, defaultCountryCode } from "../constants/countryCodes";
+import { colors } from "../constants/colors";
 import Card from "./Card";
 
 export default function CountryCodePicker({
@@ -52,7 +54,7 @@ export default function CountryCodePicker({
         style={styles.button}
       >
         <Text style={styles.codeText}>{selectedCountry.dialCode}</Text>
-        <Text style={styles.arrow}>▾</Text>
+        <Ionicons name="chevron-down" size={14} color="#666666" />
       </TouchableOpacity>
 
       <Modal
@@ -118,8 +120,8 @@ const styles = StyleSheet.create({
     minHeight: 50,
     borderRadius: 15,
     borderWidth: 1,
-    borderColor: "#f0f0f0",
-    backgroundColor: "#f9f9f9",
+    borderColor: "#b7b8bc",
+    backgroundColor: "#ffffff",
     paddingHorizontal: 12,
     flexDirection: "row",
     alignItems: "center",
@@ -129,11 +131,6 @@ const styles = StyleSheet.create({
     color: "#111111",
     fontSize: 15,
     fontWeight: "700",
-  },
-  arrow: {
-    color: "#666666",
-    fontSize: 12,
-    fontWeight: "800",
   },
   modalOverlay: {
     flex: 1,
@@ -210,7 +207,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   countryCode: {
-    color: "#e65539",
+    color: colors.primaryBlue,
     fontSize: 14,
     fontWeight: "800",
   },

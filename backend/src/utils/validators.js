@@ -32,10 +32,15 @@ const isValidOtp = (otp) => {
   return /^\d{6}$/.test(String(otp || "").trim());
 };
 
+const isValidFirstName = (firstName) => {
+  return String(firstName || "").trim().length >= 2;
+};
+
 module.exports = {
   isValidEmail,
   isValidPassword,
   isValidMobile,
   isValidCountryCode,
   isValidOtp,
+  isValidFirstName,
 };

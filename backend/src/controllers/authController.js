@@ -33,6 +33,7 @@ const {
   isValidMobile,
   isValidCountryCode,
   isValidOtp,
+  isValidFirstName,
 } = require("../utils/validators");
 
 /**
@@ -63,7 +64,8 @@ const getEmailPurpose = (rawPurpose) => {
 const toPublicUser = (user) => {
   return {
     id: user.id,
-    name: user.name,
+    firstName: user.firstName,
+    lastName: user.lastName || "",
     email: user.email,
     countryCode: user.countryCode || "+91",
     mobileNumber: user.mobile,
@@ -74,6 +76,7 @@ const toPublicUser = (user) => {
     country: user.country,
     pincode: user.pincode,
     profileImageUrl: user.profileImageUrl,
+    badgeCategory: user.badgeCategory,
     isEmailVerified: user.emailVerified,
     isMobileVerified: user.mobileVerified,
   };
@@ -175,7 +178,8 @@ const saveUserProfile = async (req, res) => {
   try {
     const {
       email = "",
-      name = "",
+      firstName = "",
+      lastName = "",
       countryCode = "+91",
       mobileNumber = "",
       company = "",
@@ -193,10 +197,10 @@ const saveUserProfile = async (req, res) => {
       });
     }
 
-    if (!String(name).trim() || String(name).trim().length < 2) {
+    if (!isValidFirstName(firstName)) {
       return res.status(400).json({
         success: false,
-        message: "Name must be at least 2 characters",
+        message: "First name must be at least 2 characters",
       });
     }
 
@@ -216,7 +220,8 @@ const saveUserProfile = async (req, res) => {
 
     const updatedUser = await updateUserProfileDetails({
       email: String(email).trim().toLowerCase(),
-      name: String(name || "").trim(),
+      firstName: String(firstName || "").trim(),
+      lastName: String(lastName || "").trim(),
       countryCode: String(countryCode || "").trim(),
       mobileNumber: String(mobileNumber || "").trim(),
       company: String(company || "").trim() || null,
@@ -416,17 +421,18 @@ const resetPassword = async (req, res) => {
 const registerUser = async (req, res) => {
   try {
     const {
-      name = "",
+      firstName = "",
+      lastName = "",
       email = "",
       password = "",
       countryCode = "+91",
       mobileNumber = "",
     } = req.body || {};
 
-    if (!String(name).trim() || String(name).trim().length < 2) {
+    if (!isValidFirstName(firstName)) {
       return res.status(400).json({
         success: false,
-        message: "Name must be at least 2 characters",
+        message: "First name must be at least 2 characters",
       });
     }
 
@@ -495,7 +501,8 @@ const registerUser = async (req, res) => {
     const passwordHash = await bcrypt.hash(String(password), 10);
 
     const userPayload = {
-      name: String(name).trim(),
+      firstName: String(firstName).trim(),
+      lastName: String(lastName || "").trim(),
       email: normalizedEmail,
       countryCode: String(countryCode).trim(),
       mobile: String(mobileNumber).trim(),
@@ -535,53 +542,81 @@ const registerUser = async (req, res) => {
 /**
  * Login user
  */
+const loginFailedResponse = (res) => {
+  return res.status(401).json({
+    code: 401,
+    message: "Login failed",
+    details: {
+      reason: "Invalid credentials",
+    },
+  });
+};
+
 const loginUser = async (req, res) => {
   try {
-    const { email = "", password = "" } = req.body || {};
-
-    if (!isValidEmail(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid email address",
-      });
-    }
+    const {
+      eventId = 1,
+      email = "",
+      password = "",
+      countryCode = "",
+      mobile = "",
+      mobileNumber = "",
+    } = req.body || {};
 
     if (!isValidPassword(password)) {
       return res.status(400).json({
-        success: false,
+        code: 400,
         message: "Password must be at least 6 characters",
       });
     }
 
     const normalizedEmail = String(email).trim().toLowerCase();
-    const user = await findUserByEmail(normalizedEmail);
+    const normalizedMobile = String(mobile || mobileNumber).trim();
+    const hasEmailLogin = isValidEmail(normalizedEmail);
+    const hasMobileLogin = isValidMobile(normalizedMobile);
 
-    if (!user || !user.passwordHash) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
+    if (!hasEmailLogin && !hasMobileLogin) {
+      return res.status(400).json({
+        code: 400,
+        message: "Valid email or mobile number is required",
       });
     }
 
-    const passwordMatched = await bcrypt.compare(password, user.passwordHash);
+    if (hasMobileLogin && !hasEmailLogin) {
+      const resolvedCountryCode = String(countryCode || "").trim() || "+91";
+      if (!isValidCountryCode(resolvedCountryCode)) {
+        return res.status(400).json({
+          code: 400,
+          message: "Invalid country code",
+        });
+      }
+    }
+
+    const user = hasEmailLogin
+      ? await findUserByEmail(normalizedEmail)
+      : await findUserByMobile(normalizedMobile);
+
+    if (!user || !user.passwordHash) {
+      return loginFailedResponse(res);
+    }
+
+    const passwordMatched = await bcrypt.compare(String(password), user.passwordHash);
 
     if (!passwordMatched) {
-      return res.status(401).json({
-        success: false,
-        message: "Invalid email or password",
-      });
+      return loginFailedResponse(res);
     }
 
     return res.status(200).json({
-      success: true,
+      code: 200,
       message: "Login successful",
-      ...toAuthResponse(user),
+      token: createAuthToken(user),
+      user: toPublicUser(user),
     });
   } catch (error) {
     console.error("Login error:", error);
 
     return res.status(500).json({
-      success: false,
+      code: 500,
       message: "Login failed",
     });
   }
@@ -631,23 +666,27 @@ const sendEmailOtp = async (req, res) => {
     }
 
     if (normalizedPurpose === EMAIL_PURPOSES.login) {
-      if (!isValidPassword(password)) {
-        return res.status(400).json({
-          success: false,
-          message: "Password must be at least 6 characters",
-        });
-      }
+      const hasPassword = String(password || "").trim().length > 0;
 
-      const passwordMatched = await bcrypt.compare(
-        String(password),
-        existingUser.passwordHash || ""
-      );
+      if (hasPassword) {
+        if (!isValidPassword(password)) {
+          return res.status(400).json({
+            success: false,
+            message: "Password must be at least 6 characters",
+          });
+        }
 
-      if (!passwordMatched) {
-        return res.status(401).json({
-          success: false,
-          message: "Invalid email or password",
-        });
+        const passwordMatched = await bcrypt.compare(
+          String(password),
+          existingUser.passwordHash || ""
+        );
+
+        if (!passwordMatched) {
+          return res.status(401).json({
+            success: false,
+            message: "Invalid email or password",
+          });
+        }
       }
     }
 
@@ -796,7 +835,7 @@ const verifyEmailOtp = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: "Invalid OTP",
+        message: "Incorrect OTP. Please try again.",
       });
     }
 
@@ -839,6 +878,43 @@ const verifyEmailOtp = async (req, res) => {
   }
 };
 
+const registerDeviceToken = async (req, res) => {
+  try {
+    const userId = req.authUserId;
+    const fcmToken = String(req.body?.fcmToken || "").trim();
+    const platform = String(req.body?.platform || "").trim().toLowerCase();
+
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        message: "FCM token is required",
+      });
+    }
+
+    if (!["android", "ios", "web"].includes(platform)) {
+      return res.status(400).json({
+        success: false,
+        message: "Platform must be android, ios, or web",
+      });
+    }
+
+    const { upsertDeviceToken } = require("../models/deviceTokenModel");
+    await upsertDeviceToken({ userId, fcmToken, platform });
+
+    return res.status(200).json({
+      success: true,
+      message: "Device token registered",
+    });
+  } catch (error) {
+    console.error("Register device token error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to register device token",
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -849,4 +925,5 @@ module.exports = {
   saveUserProfile,
   uploadProfilePhoto,
   getSessionUser,
+  registerDeviceToken,
 };

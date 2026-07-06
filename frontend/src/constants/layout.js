@@ -1,3 +1,6 @@
+/** Max content width on web — matches typical mobile viewport */
+export const MOBILE_MAX_WIDTH = 430;
+
 export const layout = {
   topBarHorizontalMargin: 14,
   topBarHeight: 48,

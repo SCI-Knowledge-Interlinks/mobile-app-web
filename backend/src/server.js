@@ -5,18 +5,28 @@ loadEnv();
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const http = require("http");
+const { Server } = require("socket.io");
 
 
 
 const authRoutes = require("./routes/authRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
+const exhibitionRoutes = require("./routes/exhibitionRoutes");
+const faqRoutes = require("./routes/faqRoutes");
+const eventRoutes = require("./routes/eventRoutes");
+const badgeRoutes = require("./routes/badgeRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const { initializeChatSocket } = require("./services/chatSocketService");
 const {
   initializeDatabase,
   testDatabaseConnection,
 } = require("./config/database");
 const { getDatabaseProfile } = require("./config/databaseName");
 const { cleanupVerificationCodes } = require("./models/verificationCodeModel");
+const { seedDefaultEventIfEmpty } = require("./models/eventModel");
+const { seedDefaultBadgesIfEmpty } = require("./models/badgeModel");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -76,6 +86,11 @@ app.get("/", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/whatsapp", whatsappRoutes);
 app.use("/", sessionRoutes);
+app.use("/exhibitions", exhibitionRoutes);
+app.use("/events", eventRoutes);
+app.use("/badges", badgeRoutes);
+app.use("/chat", chatRoutes);
+app.use("/", faqRoutes);
 
 /**
  * 404 handler
@@ -120,6 +135,16 @@ const startServer = async () => {
     await initializeDatabase();
     console.log("Database and users table are ready");
 
+    const seededEvent = await seedDefaultEventIfEmpty();
+    if (seededEvent) {
+      console.log("Seeded default home screen event");
+    }
+
+    const seededBadges = await seedDefaultBadgesIfEmpty();
+    if (seededBadges) {
+      console.log("Seeded default badge registrations");
+    }
+
     await testDatabaseConnection();
     console.log("Database connected successfully");
   } catch (error) {
@@ -145,7 +170,18 @@ const startServer = async () => {
     }
   }
 
-  app.listen(PORT, () => {
+  const server = http.createServer(app);
+  const io = new Server(server, {
+    cors: {
+      origin: true,
+      credentials: true,
+    },
+  });
+
+  app.set("io", io);
+  initializeChatSocket(io);
+
+  server.listen(PORT, () => {
     console.log(`Backend running on ${PUBLIC_API_BASE_URL}`);
   });
 

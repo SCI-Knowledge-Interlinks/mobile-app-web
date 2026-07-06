@@ -36,7 +36,8 @@ const isValidMobileNumber = (value) => {
 
 const toPublicUser = (user) => ({
   id: user.id,
-  name: user.name,
+  firstName: user.firstName,
+  lastName: user.lastName || "",
   email: user.email,
   countryCode: user.countryCode || "+91",
   mobileNumber: user.mobile,
@@ -47,6 +48,7 @@ const toPublicUser = (user) => ({
   country: user.country,
   pincode: user.pincode,
   profileImageUrl: user.profileImageUrl,
+  badgeCategory: user.badgeCategory,
   isEmailVerified: user.emailVerified,
   isMobileVerified: user.mobileVerified,
 });
@@ -278,7 +280,7 @@ if (
     if (!isMatch) {
       return res.status(400).json({
         success: false,
-        message: "Invalid OTP",
+        message: "Incorrect OTP. Please try again.",
       });
     }
 

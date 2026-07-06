@@ -7,7 +7,8 @@ const mapUser = (row) => {
 
   return {
     id: row.id,
-    name: row.name,
+    firstName: row.first_name,
+    lastName: row.last_name,
     email: row.email,
     countryCode: row.country_code || "+91",
     mobile: row.mobile,
@@ -18,6 +19,7 @@ const mapUser = (row) => {
     country: row.country,
     pincode: row.pincode,
     profileImageUrl: row.profile_image_url,
+    badgeCategory: row.badge_category,
     passwordHash: row.password_hash,
     emailVerified: Boolean(row.email_verified),
     mobileVerified: Boolean(row.mobile_verified),
@@ -50,7 +52,8 @@ const findUserByMobile = async (mobile) => {
 };
 
 const createUser = async ({
-  name,
+  firstName,
+  lastName = "",
   email,
   countryCode = "+91",
   mobile,
@@ -60,7 +63,8 @@ const createUser = async ({
 }) => {
   const [result] = await pool.execute(
     `INSERT INTO users (
-      name,
+      first_name,
+      last_name,
       email,
       country_code,
       mobile,
@@ -73,13 +77,23 @@ const createUser = async ({
       mobile_verified,
       password_hash
     )
-     VALUES (?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, ?, ?, ?)`,
-    [name, email, countryCode, mobile, emailVerified, mobileVerified, passwordHash]
+     VALUES (?, ?, ?, ?, ?, NULL, NULL, NULL, NULL, NULL, ?, ?, ?)`,
+    [
+      firstName,
+      lastName,
+      email,
+      countryCode,
+      mobile,
+      emailVerified,
+      mobileVerified,
+      passwordHash,
+    ]
   );
 
   return {
     id: result.insertId,
-    name,
+    firstName,
+    lastName,
     email,
     countryCode,
     mobile,
@@ -99,7 +113,8 @@ const createUser = async ({
  */
 const updateUserProfileDetails = async ({
   email,
-  name,
+  firstName,
+  lastName = "",
   countryCode = "+91",
   mobileNumber,
   company,
@@ -111,9 +126,21 @@ const updateUserProfileDetails = async ({
 }) => {
   await pool.execute(
     `UPDATE users
-     SET name = ?, country_code = ?, mobile = ?, company = ?, designation = ?, gender = ?, city = ?, country = ?, pincode = ?
+     SET first_name = ?, last_name = ?, country_code = ?, mobile = ?, company = ?, designation = ?, gender = ?, city = ?, country = ?, pincode = ?
      WHERE email = ?`,
-    [name, countryCode, mobileNumber, company, designation, gender, city, country, pincode, email]
+    [
+      firstName,
+      lastName,
+      countryCode,
+      mobileNumber,
+      company,
+      designation,
+      gender,
+      city,
+      country,
+      pincode,
+      email,
+    ]
   );
 
   return findUserByEmail(email);

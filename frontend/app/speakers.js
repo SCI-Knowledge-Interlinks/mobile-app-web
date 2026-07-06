@@ -1,11 +1,11 @@
 import React from "react";
 import { router } from "expo-router";
 
-import Speakers from "../src/screens/Speakers";
+import SpeakersNew from "../src/screens/SpeakersNew";
 
 export default function SpeakersRoute() {
   return (
-    <Speakers
+    <SpeakersNew
       onBack={() => router.back()}
       onOpenSpeakerInfo={(data) =>
         router.push({

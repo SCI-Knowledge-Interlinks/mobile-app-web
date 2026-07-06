@@ -37,9 +37,11 @@ yarn-error.*
 !.env.*.example
 .env*.local
 
-# uploaded user files
-backend/uploads/profile-images/*
-!backend/uploads/profile-images/.gitkeep
+backend/secrets/
+backend/secrets/*
+!backend/secrets/.gitkeep
+backend/src/firebase/serviceAccountKey.json
+
 
 # typescript
 *.tsbuildinfo
@@ -47,6 +49,8 @@ backend/uploads/profile-images/*
 # generated native folders
 /ios
 /android
+frontend/ios/
+frontend/android/
 
 #project-doc
 PROJECT_DOCUMENTATION.md
