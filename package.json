@@ -11,7 +11,7 @@
     "android:dev": "EAS_BUILD_PROFILE=development npx expo prebuild --platform android && npx expo run:android --device",
     "build:apk:dev": "EAS_BUILD_PROFILE=development npx expo prebuild --platform android --clean && cd android && ./gradlew assembleDebug -PreactNativeArchitectures=arm64-v8a",
     "web": "expo start --web",
-    "build": "npx expo export --platform web --output-dir dist && node scripts/verify-dist.mjs",
+    "build": "npx expo export --platform web --output-dir dist && node scripts/verify-dist.mjs && node scripts/sync-dist-for-hostinger.mjs",
     "build:web": "npm run build",
     "ios": "expo run:ios",
     "eas:build:android:dev": "eas build --profile development --platform android",

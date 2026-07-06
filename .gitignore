@@ -37,3 +37,12 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# Generated at repo root by scripts/sync-dist-for-hostinger.mjs (npm run build)
+/index.html
+/favicon.ico
+/metadata.json
+/firebase-messaging-sw.js
+/_expo/
+/assets/
+/.htaccess
