@@ -3,7 +3,7 @@ import Constants from "expo-constants";
 
 const DEFAULT_API_PORT = "3000";
 const DEFAULT_PRODUCTION_API_BASE_URL =
-  "https://azure-cassowary-742969.hostingersite.com";
+  "https://paleturquoise-snake-978190.hostingersite.com";
 
 function normalizeBaseUrl(url) {
   return String(url || "").trim().replace(/\/$/, "");

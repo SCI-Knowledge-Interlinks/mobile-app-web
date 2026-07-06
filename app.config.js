@@ -2,7 +2,7 @@ const IS_DEV_CLIENT =
   process.env.EAS_BUILD_PROFILE !== "preview" &&
   process.env.EAS_BUILD_PROFILE !== "production";
 
-const DEFAULT_API_BASE_URL = "https://azure-cassowary-742969.hostingersite.com";
+const DEFAULT_API_BASE_URL = "https://paleturquoise-snake-978190.hostingersite.com";
 const DEFAULT_EXHIBITOR_LIST_URL =
   "https://prawaas.com/prawaas-2026/public/api/public/exhibitor-list";
 
