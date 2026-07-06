@@ -7,7 +7,7 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native build artifacts
 .kotlin/
 *.orig.*
 *.jks
@@ -37,13 +37,3 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
-
-# generated native folders
-/ios
-/android
-frontend/ios/
-frontend/android/
-
-# project docs
-PROJECT_DOCUMENTATION.md
-CHANGELOG.md

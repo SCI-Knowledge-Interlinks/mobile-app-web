@@ -1,8 +1,0 @@
-# Generated native projects (recreate with `npx expo prebuild`)
-ios/
-android/
-
-# Expo
-.expo/
-dist/
-web-build/
